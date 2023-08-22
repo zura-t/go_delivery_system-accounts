@@ -10,6 +10,22 @@ import (
 	"database/sql"
 )
 
+const addPhone = `-- name: AddPhone :exec
+UPDATE users
+SET phone = $2
+WHERE id = $1
+`
+
+type AddPhoneParams struct {
+	ID    int64          `json:"id"`
+	Phone sql.NullString `json:"phone"`
+}
+
+func (q *Queries) AddPhone(ctx context.Context, arg AddPhoneParams) error {
+	_, err := q.db.ExecContext(ctx, addPhone, arg.ID, arg.Phone)
+	return err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   email,

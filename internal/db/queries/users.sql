@@ -33,3 +33,8 @@ RETURNING *;
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;
+
+-- name: AddPhone :exec
+UPDATE users
+SET phone = $2
+WHERE id = $1;

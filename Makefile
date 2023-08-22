@@ -36,4 +36,9 @@ build:
 mock:
 	mockgen -package mockdb -destination internal/db/mock/store.go github.com/zura-t/go_delivery_system/accounts/internal/db/sqlc Store
 
-.PHONY: postgres test sqlc createdb dropdb mock migratedown migrateup migratedown2 migrateup1 server build
+proto:
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+	--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+	proto/*.proto
+
+.PHONY: postgres test sqlc createdb dropdb mock migratedown migrateup migratedown2 migrateup1 server proto build
