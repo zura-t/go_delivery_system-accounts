@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/lib/pq"
-	"github.com/zura-t/go_delivery_system-accounts/pb"
 	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"github.com/zura-t/go_delivery_system-accounts/pkg"
 	"github.com/zura-t/go_delivery_system-accounts/val"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -23,7 +25,7 @@ func convertUser(user db.User) *pb.User {
 	}
 }
 
-func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.User, error) {
+func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	violations := validateCreateUserRequest(req)
 	if violations != nil {
 		return nil, invalidArgumentError(violations)
@@ -31,7 +33,7 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 
 	hashedPassword, err := pkg.HashPassword(req.GetPassword())
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 	}
 
 	arg := db.CreateUserParams{
@@ -45,13 +47,15 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "unique_violation":
-				return nil, err
+				return nil, status.Errorf(codes.AlreadyExists, "User with such data already exists: %s", err)
 			}
 		}
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to create user: %s", err)
 	}
 
-	rsp := convertUser(user)
+	rsp := &pb.CreateUserResponse{
+		User: convertUser(user),
+	}
 	return rsp, nil
 }
 

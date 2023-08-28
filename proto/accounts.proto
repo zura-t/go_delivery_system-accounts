@@ -25,9 +25,17 @@ message CreateUserRequest{
   string password = 3;
 }
 
+message CreateUserResponse {
+  User user = 1;
+}
+
 message UpdateUserRequest{
   int64 id = 1;
   string name = 2;
+}
+
+message UpdateUserResponse {
+  User user = 1;
 }
 
 message AddPhoneRequest{
@@ -36,9 +44,9 @@ message AddPhoneRequest{
 }
 
 service UsersService {
-  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc GetUser(UserId) returns (User);
-  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
   rpc AddPhone(AddPhoneRequest) returns (google.protobuf.Empty);
   rpc DeleteUser(UserId) returns (google.protobuf.Empty);
 }

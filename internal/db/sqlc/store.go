@@ -1,22 +1,21 @@
 package db
 
-// import (
-// 	"database/sql"
-// )
+import (
+	"database/sql"
+)
 
-// type Store interface {
-// 	Querier
-// }
+type Store interface {
+	Querier
+}
 
-// type SQLStore struct {
-// 	db *sql.DB
-// 	*Queries
-// }
+type SQLStore struct {
+	db *sql.DB
+	*Queries
+}
 
-// // NewStore creates a new store
-// func NewStore(db *sql.DB) Store {
-// 	return &SQLStore{
-// 		db:      db,
-// 		Queries: New(db),
-// 	}
-// }
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
+		db:      db,
+		Queries: New(db),
+	}
+}

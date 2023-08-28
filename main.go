@@ -24,7 +24,7 @@ func main() {
 		log.Fatal("can't connect to db:", err)
 	}
 	
-	store := db.New(conn)
+	store := db.NewStore(conn)
 	server, err := gapi.NewServer(store, config)
 	if err != nil {
 		log.Fatal("can't create server:", err)

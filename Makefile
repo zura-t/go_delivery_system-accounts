@@ -34,7 +34,7 @@ build:
 	chdir . && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${APP_BINARY} .
 
 mock:
-	mockgen -package mockdb -destination internal/db/mock/store.go github.com/zura-t/go_delivery_system/accounts/internal/db/sqlc Store
+	mockgen -package mockdb -destination internal/db/mock/store.go github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc Store
 
 proto:
 	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \

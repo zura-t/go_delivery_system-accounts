@@ -16,7 +16,7 @@ func (server *Server) GetUser(ctx context.Context, req *pb.UserId) (*pb.User, er
 			return nil, status.Errorf(codes.NotFound, "user not found: %s", err)
 		}
 
-		return nil, status.Errorf(codes.NotFound, "failed to find user: %s", err)
+		return nil, status.Errorf(codes.Internal, "failed to find user: %s", err)
 	}
 
 	res := convertUser(user)
