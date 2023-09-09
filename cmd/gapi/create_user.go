@@ -8,7 +8,6 @@ import (
 	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"github.com/zura-t/go_delivery_system-accounts/pkg"
 	"github.com/zura-t/go_delivery_system-accounts/val"
-
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

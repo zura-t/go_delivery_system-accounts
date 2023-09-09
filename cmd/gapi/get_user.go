@@ -20,6 +20,5 @@ func (server *Server) GetUser(ctx context.Context, req *pb.UserId) (*pb.User, er
 	}
 
 	res := convertUser(user)
-
 	return res, nil
 }

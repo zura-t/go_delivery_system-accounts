@@ -1,8 +1,7 @@
-FROM alpine:latest
-
+FROM golang:1.20
 WORKDIR /app
+COPY . .
+RUN go build -o main main.go
 
-COPY app.env /app
-COPY accountApp /app
-
-CMD ["/app/accountApp"]
+EXPOSE 8081
+CMD [ "/app/main" ]
