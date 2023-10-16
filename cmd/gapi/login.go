@@ -45,17 +45,6 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.Internal, "failed to create refresh token", err)
 	}
 
-	// cookie := &http.Cookie{
-	// 	Name:   "refresh_token",
-	// 	Value:  refreshToken,
-	// 	MaxAge: int(server.config.AccessTokenDuration.Seconds()),
-	// 	Path:   "/",
-	// 	Domain: "localhost",
-		// SameSite: http.SameSiteStrictMode,
-	// 	Secure:   false,
-	// 	HttpOnly: true,
-	// }
-
 	rsp := &pb.LoginUserResponse{
 		User:                  convertUser(user),
 		AccessToken:           accessToken,
