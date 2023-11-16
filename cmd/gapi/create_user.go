@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/lib/pq"
-	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"github.com/zura-t/go_delivery_system-accounts/pkg"
 	"github.com/zura-t/go_delivery_system-accounts/val"

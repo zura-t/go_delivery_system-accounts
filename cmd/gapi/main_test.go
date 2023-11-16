@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/zura-t/go_delivery_system-accounts/internal"
-	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	"github.com/zura-t/go_delivery_system-accounts/config"
+	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 )
 
 func newTestServer(t *testing.T, store db.Store) *Server {
-	config := internal.Config{}
+	config := config.Config{}
 
 	server, err := NewServer(store, config)
 	require.NoError(t, err)

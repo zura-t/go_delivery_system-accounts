@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

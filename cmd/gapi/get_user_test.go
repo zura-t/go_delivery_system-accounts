@@ -7,8 +7,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	mockdb "github.com/zura-t/go_delivery_system-accounts/internal/db/mock"
-	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	mockdb "github.com/zura-t/go_delivery_system-accounts/pkg/db/mock"
+	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

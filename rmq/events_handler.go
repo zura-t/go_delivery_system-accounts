@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/zura-t/go_delivery_system-accounts/cmd/api"
+	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
 )
 
 type EventPayload struct {
@@ -15,7 +15,7 @@ type EventPayload struct {
 
 type CreateUserPayload struct {
 	Name string
-	Data api.CreateUserRequest
+	Data usecase.CreateUserRequest
 }
 
 type Response struct {

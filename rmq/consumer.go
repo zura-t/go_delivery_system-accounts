@@ -8,16 +8,16 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/zura-t/go_delivery_system-accounts/cmd/api"
+	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
 )
 
 type Consumer struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
-	server  *api.Server
+	server  *usecase.Server
 }
 
-func NewConsumer(conn *amqp.Connection, channel *amqp.Channel, server *api.Server) (Consumer, error) {
+func NewConsumer(conn *amqp.Connection, channel *amqp.Channel, server *usecase.Server) (Consumer, error) {
 	consumer := Consumer{
 		conn:    conn,
 		channel: channel,

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	db "github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc"
+	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 	"github.com/zura-t/go_delivery_system-accounts/pb"
 	"github.com/zura-t/go_delivery_system-accounts/val"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
