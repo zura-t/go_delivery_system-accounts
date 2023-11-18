@@ -8,15 +8,18 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
 	"github.com/zura-t/go_delivery_system-accounts/config"
+	v1 "github.com/zura-t/go_delivery_system-accounts/internal/controller/http/v1"
+	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
 	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
+	"github.com/zura-t/go_delivery_system-accounts/pkg/logger"
 	"github.com/zura-t/go_delivery_system-accounts/rmq"
+	"github.com/zura-t/go_delivery_system-accounts/token"
 )
 
-func Run(config config.Config) {
-	
+func Run(config *config.Config) {
 	dbconn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("can't connect to db:", err)
@@ -34,7 +37,17 @@ func Run(config config.Config) {
 	}
 	defer rabbitConn.Close()
 
-	_, err = runGinServer(store, config)
+	l := logger.New(config.LogLevel)
+
+	tokenMaker, err := token.NewJwtMaker(config.TokenSymmetricKey)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	usersUseCase := usecase.New(store, config, tokenMaker)
+
+	_, err = runGinServer(l, config, usersUseCase)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -52,14 +65,15 @@ func Run(config config.Config) {
 	// }
 }
 
-func runGinServer(store db.Store, config config.Config) (*usecase.Server, error) {
-	server, err := usecase.NewServer(store, config)
+func runGinServer(l *logger.Logger, config *config.Config, usersUsecase *usecase.UserUseCase) (*v1.Server, error) {
+	handler := gin.New()
+	server, err := v1.New(config)
 	if err != nil {
 		log.Fatalf("can't create server: %s", err)
 		return nil, err
 	}
 
-	err = server.Start(config.HttpServerAddress)
+	server.NewRouter(handler, l, usersUsecase)
 	if err != nil {
 		log.Fatalf("can't start server: %s", err)
 		return nil, err
@@ -97,14 +111,14 @@ func connectRabbitmq() (*amqp.Connection, error) {
 	return connection, nil
 }
 
-func setupRabbitmq(rabbitConn *amqp.Connection, server *usecase.Server) (*amqp.Channel, *rmq.Consumer, error) {
+func setupRabbitmq(rabbitConn *amqp.Connection) (*amqp.Channel, *rmq.Consumer, error) {
 	channel, err := rabbitConn.Channel()
 	if err != nil {
 		log.Fatal("can't create rabbitmq consumer", err)
 		return nil, nil, err
 	}
 
-	consumer, err := rmq.NewConsumer(rabbitConn, channel, server)
+	consumer, err := rmq.NewConsumer(rabbitConn, channel)
 	if err != nil {
 		return nil, nil, err
 	}

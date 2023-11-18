@@ -1,36 +1,22 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-type DeleteUserRequest struct {
-	Id int64 `uri:"id" binding:"required,min=1"`
-}
-
-func (server *Server) DeleteUser(ctx *gin.Context) {
-	var req DeleteUserRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	err := server.store.DeleteUser(ctx, req.Id)
+func (uc *UserUseCase) DeleteUser(id int64) (string, int, error) {
+	err := uc.store.DeleteUser(context.Background(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = fmt.Errorf("user not found: %s", errorResponse(err))
-			ctx.JSON(http.StatusBadRequest, err)
-			return
+			err = fmt.Errorf("user not found: %s", err)
+			return "", http.StatusNotFound, err
 		}
 		err = fmt.Errorf("failed to delete user: %s", err)
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+		return "", http.StatusInternalServerError, err
 	}
 
-	ctx.JSON(http.StatusOK, "user has been deleted")
-	return
+	return "user has been deleted", http.StatusOK, nil
 }

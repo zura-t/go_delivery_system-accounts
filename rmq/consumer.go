@@ -4,24 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
 )
 
 type Consumer struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
-	server  *usecase.Server
 }
 
-func NewConsumer(conn *amqp.Connection, channel *amqp.Channel, server *usecase.Server) (Consumer, error) {
+func NewConsumer(conn *amqp.Connection, channel *amqp.Channel) (Consumer, error) {
 	consumer := Consumer{
 		conn:    conn,
 		channel: channel,
-		server:  server,
 	}
 
 	return consumer, nil
@@ -51,7 +47,7 @@ func (consumer *Consumer) ListenCreateUserRPC() error {
 	forever := make(chan bool)
 	go func() {
 		for d := range messages {
-			resp, err := consumer.HandleRPC(context.Background(), d.Body)
+			// resp, err := consumer.HandleRPC(context.Background(), d.Body)
 			if err != nil {
 				res, err := json.Marshal(&Response{Data: "error"})
 				err = consumer.publishRPCResponse(d.ReplyTo, d.CorrelationId, res)
@@ -64,10 +60,10 @@ func (consumer *Consumer) ListenCreateUserRPC() error {
 				d.Ack(false)
 				return
 			}
-			response, err := json.Marshal(&resp)
-			log.Println(resp)
+			// response, err := json.Marshal(&resp)
+			// log.Println(resp)
 
-			err = consumer.publishRPCResponse(d.ReplyTo, d.CorrelationId, response)
+			// err = consumer.publishRPCResponse(d.ReplyTo, d.CorrelationId, response)
 
 			if err != nil {
 				fmt.Printf("Can't send event :", err)

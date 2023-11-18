@@ -1,51 +1,31 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/zura-t/go_delivery_system-accounts/internal/entity"
 	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 )
 
-type UserIdParam struct {
-	Id int64 `uri:"id"  binding:"required,min=1"`
-}
-
-type UpdateUserRequest struct {
-	Name string `json:"name" binding:"required"`
-}
-
-func (server *Server) UpdateUser(ctx *gin.Context) {
-	var req UpdateUserRequest
-	var params UserIdParam
-	if err := ctx.ShouldBindUri(&params); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
+func (uc *UserUseCase) UpdateUser(id int64, req *entity.UserUpdate) (*entity.User, int, error) {
 	arg := db.UpdateUserParams{
-		ID:   params.Id,
+		ID:   id,
 		Name: req.Name,
 	}
 
-	user, err := server.store.UpdateUser(ctx, arg)
+	user, err := uc.store.UpdateUser(context.Background(), arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("user not found: %s", err)
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
+			return nil, http.StatusNotFound, err
 		}
 		err = fmt.Errorf("failed to update user: %s", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusInternalServerError, err
 	}
 	rsp := ConvertUser(user)
 
-	ctx.JSON(http.StatusOK, rsp)
+	return &rsp, http.StatusOK, nil
 }

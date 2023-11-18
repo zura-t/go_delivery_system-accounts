@@ -8,7 +8,7 @@ import (
 	"github.com/zura-t/go_delivery_system-accounts/pkg/logger"
 )
 
-func (server *Server) NewRouter(handler *gin.Engine, logger logger.Interface, userUsecase usecase.User) {
+func (server *Server) NewRouter(handler *gin.Engine, logger logger.Interface, userUsecase *usecase.UserUseCase) {
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())
 

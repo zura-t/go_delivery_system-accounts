@@ -1,47 +1,30 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/zura-t/go_delivery_system-accounts/internal/entity"
 	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 )
 
-type AddPhoneRequest struct {
-	Phone string `json:"phone" binding:"required"`
-}
-
-func (server *Server) AddPhone(ctx *gin.Context) {
-	var req AddPhoneRequest
-	var params UserIdParam
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	if err := ctx.ShouldBindUri(&params); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
+func (uc *UserUseCase) AddPhone(id int64, req *entity.UserAddPhone) (string, int, error) {
 	arg := db.AddPhoneParams{
-		ID:    params.Id,
+		ID:    id,
 		Phone: sql.NullString{String: req.Phone, Valid: true},
 	}
-	err := server.store.AddPhone(ctx, arg)
+	err := uc.store.AddPhone(context.Background(), arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("user not found: %s", err)
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
+			return "", http.StatusNotFound, err
 		}
 
 		err = fmt.Errorf("failed to update phone number: %s", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return "", http.StatusInternalServerError, err
 	}
 
-	ctx.JSON(http.StatusOK, "New phone updated")
-	return
+	return "New phone updated", http.StatusOK, nil
 }

@@ -3,19 +3,12 @@ package rmq
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-
-	"github.com/zura-t/go_delivery_system-accounts/internal/usecase"
+	// "fmt"
 )
 
 type EventPayload struct {
 	Name string
 	Data any
-}
-
-type CreateUserPayload struct {
-	Name string
-	Data usecase.CreateUserRequest
 }
 
 type Response struct {
@@ -28,29 +21,29 @@ const (
 	DelateUser string = "delete_user"
 )
 
-func (consumer *Consumer) HandleRPC(ctx context.Context, event []byte) (*Response, error) {
+func (consumer *Consumer) HandleRPC(ctx context.Context, event []byte) {
 	var payload EventPayload
 	err := json.Unmarshal(event, &payload)
 	if err != nil {
-		return nil, err
+		// return nil, err
 	}
 
 	switch payload.Name {
 	// case CreateUser:
-		// var payload CreateUserPayload
-		// err := json.Unmarshal(event, &payload)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// user, err := consumer.server.CreateUser(ctx, payload.Data)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// res := &Response{Data: user}
-		// return res, nil
+	// var payload CreateUserPayload
+	// err := json.Unmarshal(event, &payload)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// user, err := consumer.server.CreateUser(ctx, payload.Data)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// res := &Response{Data: user}
+	// return res, nil
 	case UpdateUser:
-		return nil, nil
+		// return nil, nil
 	default:
-		return nil, fmt.Errorf("no match events")
+		// return nil, fmt.Errorf("no match events")
 	}
 }

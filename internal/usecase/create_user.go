@@ -1,33 +1,19 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"github.com/zura-t/go_delivery_system-accounts/internal/entity"
 	"github.com/zura-t/go_delivery_system-accounts/pkg"
 	db "github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc"
 )
 
-type CreateUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Name     string `json:"name" binding:"required"`
-}
-
-type UserResponse struct {
-	Id        int64     `json:"id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	Phone     string    `json:"phone"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func ConvertUser(user db.User) *UserResponse {
-	return &UserResponse{
+func ConvertUser(user db.User) entity.User {
+	return entity.User{
 		Id:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
@@ -36,28 +22,19 @@ func ConvertUser(user db.User) *UserResponse {
 	}
 }
 
-func (server *Server) CreateUser(ctx *gin.Context) {
-	var req CreateUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	userExists, err := server.store.GetUserByEmail(ctx, req.Email)
+func (uc *UserUseCase) CreateUser(req *entity.UserRegister) (*entity.User, int, error) {
+	userExists, err := uc.store.GetUserByEmail(context.Background(), req.Email)
 	if err != nil && err != sql.ErrNoRows {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusInternalServerError, err
 	}
 	if userExists != (db.User{}) {
 		err = fmt.Errorf("User with such data already exists.")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusBadRequest, err
 	}
 
 	hashedPassword, err := pkg.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusBadRequest, err
 	}
 
 	arg := db.CreateUserParams{
@@ -66,13 +43,12 @@ func (server *Server) CreateUser(ctx *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user, err := server.store.CreateUser(ctx, arg)
+	user, err := uc.store.CreateUser(context.Background(), arg)
 	if err != nil {
 		err = fmt.Errorf("failed to create user: %s", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusInternalServerError, err
 	}
 
 	rsp := ConvertUser(user)
-	ctx.JSON(http.StatusOK, rsp)
+	return &rsp, http.StatusOK, nil
 }

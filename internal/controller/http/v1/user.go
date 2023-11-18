@@ -11,11 +11,11 @@ import (
 )
 
 type userRoutes struct {
-	userUsecase usecase.User
+	userUsecase *usecase.UserUseCase
 	logger      logger.Interface
 }
 
-func (server *Server) newUserRoutes(handler *gin.RouterGroup, userUsecase usecase.User, logger logger.Interface) {
+func (server *Server) newUserRoutes(handler *gin.RouterGroup, userUsecase *usecase.UserUseCase, logger logger.Interface) {
 	routes := &userRoutes{userUsecase, logger}
 
 	handler.POST("/users", routes.createUser)
@@ -40,7 +40,7 @@ func (r *userRoutes) createUser(ctx *gin.Context) {
 		return
 	}
 
-	user, st, err := r.userUsecase.CreateUser(entity.UserRegister{
+	user, st, err := r.userUsecase.CreateUser(&entity.UserRegister{
 		Email:    req.Email,
 		Password: req.Password,
 		Name:     req.Name,
@@ -73,7 +73,7 @@ func (r *userRoutes) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	user, st, err := r.userUsecase.LoginUser(entity.UserLogin{Email: req.Email, Password: req.Password})
+	user, st, err := r.userUsecase.LoginUser(&entity.UserLogin{Email: req.Email, Password: req.Password})
 	if err != nil {
 		errorResponse(ctx, st, err.Error())
 		return
@@ -94,7 +94,7 @@ func (r *userRoutes) getMyProfile(ctx *gin.Context) {
 		return
 	}
 
-	user, st, err := r.userUsecase.GetMyProfile(req.Id)
+	user, st, err := r.userUsecase.GetUser(req.Id)
 	if err != nil {
 		errorResponse(ctx, st, err.Error())
 		return
@@ -124,7 +124,7 @@ func (r *userRoutes) updateUser(ctx *gin.Context) {
 		return
 	}
 
-	user, st, err := r.userUsecase.UpdateUser(params.Id, entity.UserUpdate{
+	user, st, err := r.userUsecase.UpdateUser(params.Id, &entity.UserUpdate{
 		Name: req.Name,
 	})
 	if err != nil {
@@ -152,7 +152,7 @@ func (r *userRoutes) addPhone(ctx *gin.Context) {
 		return
 	}
 
-	resp, st, err := r.userUsecase.AddPhone(params.Id, entity.UserAddPhone{
+	resp, st, err := r.userUsecase.AddPhone(params.Id, &entity.UserAddPhone{
 		Phone: req.Phone,
 	})
 	if err != nil {
@@ -162,7 +162,6 @@ func (r *userRoutes) addPhone(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, resp)
 }
-
 
 type DeleteUserRequest struct {
 	Id int64 `uri:"id" binding:"required,min=1"`

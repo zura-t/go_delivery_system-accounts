@@ -1,37 +1,26 @@
 package usecase
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/zura-t/go_delivery_system-accounts/internal/entity"
 )
 
-type GetUserRequest struct {
-	Id int64 `uri:"id" binding:"required,min=1"`
-}
-
-func (server *Server) GetUser(ctx *gin.Context) {
-	var req GetUserRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	user, err := server.store.GetUser(ctx, req.Id)
+func (uc *UserUseCase) GetUser(id int64) (*entity.User, int, error) {
+	user, err := uc.store.GetUser(context.Background(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("user not found: %s", err)
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
+			return nil, http.StatusNotFound, err
 		}
 
 		err = fmt.Errorf("failed to find user: %s", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		return nil, http.StatusInternalServerError, err
 	}
 	res := ConvertUser(user)
 
-	ctx.JSON(http.StatusOK, res)
+	return &res, http.StatusOK, nil
 }
