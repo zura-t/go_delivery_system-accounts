@@ -14,13 +14,12 @@ func (server *Server) NewRouter(handler *gin.Engine, logger logger.Interface, us
 
 	handler.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
 
-	h := handler.Group("/v1")
 	handler.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 	{
-		server.newUserRoutes(h, userUsecase, logger)
+		server.newUserRoutes(handler, userUsecase, logger)
 	}
 }

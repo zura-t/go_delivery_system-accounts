@@ -10,6 +10,22 @@ import (
 	"database/sql"
 )
 
+const addAdminRole = `-- name: AddAdminRole :exec
+UPDATE users
+SET is_admin = $2
+WHERE id = $1
+`
+
+type AddAdminRoleParams struct {
+	ID      int64 `json:"id"`
+	IsAdmin bool  `json:"is_admin"`
+}
+
+func (q *Queries) AddAdminRole(ctx context.Context, arg AddAdminRoleParams) error {
+	_, err := q.db.ExecContext(ctx, addAdminRole, arg.ID, arg.IsAdmin)
+	return err
+}
+
 const addPhone = `-- name: AddPhone :exec
 UPDATE users
 SET phone = $2
@@ -35,7 +51,7 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3, $4
 )
-RETURNING id, email, phone, hashed_password, name, created_at
+RETURNING id, email, is_admin, phone, hashed_password, name, created_at
 `
 
 type CreateUserParams struct {
@@ -56,6 +72,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.Phone,
 		&i.HashedPassword,
 		&i.Name,
@@ -75,7 +92,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, phone, hashed_password, name, created_at FROM users
+SELECT id, email, is_admin, phone, hashed_password, name, created_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -85,6 +102,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.Phone,
 		&i.HashedPassword,
 		&i.Name,
@@ -94,7 +112,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, phone, hashed_password, name, created_at FROM users
+SELECT id, email, is_admin, phone, hashed_password, name, created_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -104,6 +122,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.Phone,
 		&i.HashedPassword,
 		&i.Name,
@@ -113,7 +132,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserForUpdate = `-- name: GetUserForUpdate :one
-SELECT id, email, phone, hashed_password, name, created_at FROM users
+SELECT id, email, is_admin, phone, hashed_password, name, created_at FROM users
 WHERE id = $1 LIMIT 1
 FOR NO KEY UPDATE
 `
@@ -124,6 +143,7 @@ func (q *Queries) GetUserForUpdate(ctx context.Context, id int64) (User, error) 
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.Phone,
 		&i.HashedPassword,
 		&i.Name,
@@ -133,7 +153,7 @@ func (q *Queries) GetUserForUpdate(ctx context.Context, id int64) (User, error) 
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, phone, hashed_password, name, created_at FROM users
+SELECT id, email, is_admin, phone, hashed_password, name, created_at FROM users
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -156,6 +176,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		if err := rows.Scan(
 			&i.ID,
 			&i.Email,
+			&i.IsAdmin,
 			&i.Phone,
 			&i.HashedPassword,
 			&i.Name,
@@ -178,7 +199,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET name = $2
 WHERE id = $1
-RETURNING id, email, phone, hashed_password, name, created_at
+RETURNING id, email, is_admin, phone, hashed_password, name, created_at
 `
 
 type UpdateUserParams struct {
@@ -192,6 +213,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.IsAdmin,
 		&i.Phone,
 		&i.HashedPassword,
 		&i.Name,

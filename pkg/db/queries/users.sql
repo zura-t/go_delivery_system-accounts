@@ -28,6 +28,11 @@ ORDER BY id
 LIMIT $1
 OFFSET $2;
 
+-- name: AddAdminRole :exec
+UPDATE users
+SET is_admin = $2
+WHERE id = $1;
+
 -- name: UpdateUser :one
 UPDATE users
 SET name = $2

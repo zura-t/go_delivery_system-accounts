@@ -3,7 +3,6 @@ package rmq
 import (
 	"context"
 	"encoding/json"
-	// "fmt"
 )
 
 type EventPayload struct {

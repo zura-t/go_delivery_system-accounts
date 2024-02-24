@@ -12,6 +12,7 @@ import (
 type User struct {
 	ID             int64          `json:"id"`
 	Email          string         `json:"email"`
+	IsAdmin        bool           `json:"is_admin"`
 	Phone          sql.NullString `json:"phone"`
 	HashedPassword string         `json:"hashed_password"`
 	Name           string         `json:"name"`

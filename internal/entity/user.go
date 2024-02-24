@@ -7,6 +7,7 @@ type User struct {
 	Email     string    `json:"email"`
 	Name      string    `json:"name"`
 	Phone     string    `json:"phone"`
+	IsAdmin   bool      `json:"is_admin"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -30,9 +31,9 @@ type UserLoginResponse struct {
 }
 
 type UserUpdate struct {
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type UserAddPhone struct {
-	Phone     string    `json:"phone"`
+	Phone string `json:"phone"`
 }

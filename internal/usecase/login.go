@@ -23,6 +23,7 @@ func (uc *UserUseCase) LoginUser(req *entity.UserLogin) (*entity.UserLoginRespon
 
 	err = pkg.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
+		err = fmt.Errorf("wrong password")
 		return nil, http.StatusBadRequest, err
 	}
 

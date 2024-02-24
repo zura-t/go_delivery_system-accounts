@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   accounts-service:
@@ -12,12 +12,15 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DSN: "host=postgres port=5401 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
     depends_on:
       - postgres
+    networks:
+      - localnet
+      - accounts
 
   postgres:
-    image: 'postgres:14.2'
+    image: "postgres:14.2"
     ports:
       - "5401:5432"
     restart: always
@@ -30,3 +33,11 @@ services:
       POSTGRES_DB: users
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+    networks:
+      - accounts
+
+networks:
+  localnet:
+    external: true
+  accounts:
+    driver: bridge

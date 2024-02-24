@@ -18,6 +18,7 @@ func ConvertUser(user db.User) entity.User {
 		Name:      user.Name,
 		Email:     user.Email,
 		Phone:     user.Phone.String,
+		IsAdmin:   user.IsAdmin,
 		CreatedAt: user.CreatedAt,
 	}
 }

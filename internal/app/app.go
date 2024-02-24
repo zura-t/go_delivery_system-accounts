@@ -30,12 +30,12 @@ func Run(config *config.Config) {
 		log.Fatal("can't create store:", err)
 	}
 
-	rabbitConn, err := connectRabbitmq()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	defer rabbitConn.Close()
+	// rabbitConn, err := connectRabbitmq()
+	// if err != nil {
+	// 	log.Println(err)
+	// 	os.Exit(1)
+	// }
+	// defer rabbitConn.Close()
 
 	l := logger.New(config.LogLevel)
 
@@ -47,11 +47,7 @@ func Run(config *config.Config) {
 
 	usersUseCase := usecase.New(store, config, tokenMaker)
 
-	_, err = runGinServer(l, config, usersUseCase)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
+	runGinServer(l, config, usersUseCase)
 
 	// channel, consumer, err := setupRabbitmq(rabbitConn, server)
 	// if err != nil {
@@ -65,20 +61,16 @@ func Run(config *config.Config) {
 	// }
 }
 
-func runGinServer(l *logger.Logger, config *config.Config, usersUsecase *usecase.UserUseCase) (*v1.Server, error) {
+func runGinServer(l *logger.Logger, config *config.Config, usersUsecase *usecase.UserUseCase) {
 	handler := gin.New()
+
 	server, err := v1.New(config)
 	if err != nil {
 		log.Fatalf("can't create server: %s", err)
-		return nil, err
 	}
 
 	server.NewRouter(handler, l, usersUsecase)
-	if err != nil {
-		log.Fatalf("can't start server: %s", err)
-		return nil, err
-	}
-	return server, nil
+	handler.Run(config.HttpPort)
 }
 
 func connectRabbitmq() (*amqp.Connection, error) {
@@ -86,7 +78,7 @@ func connectRabbitmq() (*amqp.Connection, error) {
 	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 	for {
-		c, err := amqp.Dial("amqp://guest:guest@localhost:5672")
+		c, err := amqp.Dial("amqp://admin:admin@rabbitmq:5672")
 		if err != nil {
 			fmt.Println("rabbitmq not yet ready")
 			counts++

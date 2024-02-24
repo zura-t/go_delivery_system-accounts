@@ -10,19 +10,19 @@ dropdb:
 	docker exec -it postgres dropdb users
 
 migrateup:
-	migrate -path internal/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose up
+	migrate -path pkg/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose up
 
 migrateup1:
-	migrate -path internal/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose up 1
+	migrate -path pkg/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose up 1
 	
 migratedown:
-	migrate -path internal/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose down
+	migrate -path pkg/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose down
 
 migratedown1:
-	migrate -path internal/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose down 1
+	migrate -path pkg/db/migrations -database "postgresql://postgres:password@localhost:5401/users?sslmode=disable" -verbose down 1
 
 sqlc:
-	docker run --rm -v ${PWD}:/src -w /src kjconroy/sqlc generate
+	docker run --rm -v ${CURDIR}:/src -w /src kjconroy/sqlc generate
 
 test:
 	go test -v -cover ./...
@@ -34,7 +34,7 @@ build:
 	chdir . && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${APP_BINARY} .
 
 mock:
-	mockgen -package mockdb -destination internal/db/mock/store.go github.com/zura-t/go_delivery_system-accounts/internal/db/sqlc Store
+	mockgen -package mockdb -destination pkg/db/mock/store.go github.com/zura-t/go_delivery_system-accounts/pkg/db/sqlc Store
 
 proto:
 	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \

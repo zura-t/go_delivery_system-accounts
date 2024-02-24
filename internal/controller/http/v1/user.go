@@ -15,16 +15,17 @@ type userRoutes struct {
 	logger      logger.Interface
 }
 
-func (server *Server) newUserRoutes(handler *gin.RouterGroup, userUsecase *usecase.UserUseCase, logger logger.Interface) {
+func (server *Server) newUserRoutes(handler *gin.Engine, userUsecase *usecase.UserUseCase, logger logger.Interface) {
 	routes := &userRoutes{userUsecase, logger}
 
 	handler.POST("/users", routes.createUser)
 	handler.POST("/login", routes.loginUser)
 
-	handler.GET("/users/my_profile", routes.getMyProfile)
-	handler.PATCH("/users/", routes.updateUser)
-	handler.PATCH("/users/phone_number/", routes.addPhone)
-	handler.DELETE("/users/", routes.deleteUser)
+	handler.GET("/users/my_profile/:id", routes.getMyProfile)
+	handler.PATCH("/users/admin/:id", routes.addAdminRole)
+	handler.PATCH("/users/:id", routes.updateUser)
+	handler.PATCH("/users/phone_number/:id", routes.addPhone)
+	handler.DELETE("/users/:id", routes.deleteUser)
 }
 
 type CreateUserRequest struct {
@@ -45,7 +46,9 @@ func (r *userRoutes) createUser(ctx *gin.Context) {
 		Password: req.Password,
 		Name:     req.Name,
 	})
+
 	if err != nil {
+		r.logger.Error(err, "package: v1", "http - v1 - createUser")
 		errorResponse(ctx, st, err.Error())
 		return
 	}
@@ -105,6 +108,22 @@ func (r *userRoutes) getMyProfile(ctx *gin.Context) {
 
 type UserIdParam struct {
 	Id int64 `uri:"id"  binding:"required,min=1"`
+}
+
+func (r *userRoutes) addAdminRole(ctx *gin.Context) {
+	var req UserIdParam
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, st, err := r.userUsecase.AddAdminRole(req.Id)
+	if err != nil {
+		errorResponse(ctx, st, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
 }
 
 type UpdateUserRequest struct {
